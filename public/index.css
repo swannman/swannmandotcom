@@ -1,0 +1,121 @@
+/*
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+https://developer.yahoo.com/yui/license.html
+version: 3.3.0
+build: 3167
+*/
+html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:text-top;}sub{vertical-align:text-bottom;}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}input,textarea,select{*font-size:100%;}legend{color:#000;}
+
+/* end Yahoo CSS reset code */
+
+body {
+    margin: 16px 8px 8px 16px;
+}
+
+h1, h3, strong {
+    font-weight:bold;
+}
+
+h1 {
+    font-size:2em;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin-top: 1.2em;
+}
+
+h3 + p {
+    margin-top:0.5em;
+}
+
+p, ol {
+    margin: 1em 0;
+}
+
+ol, ul {
+    padding-left:40px;
+}
+
+ol, ol li {
+    list-style-type: decimal;
+}
+
+ul, ul li {
+    list-style-type: circle;
+}
+
+li {
+    display: list-item;
+}
+
+em {
+    font-style: italic; 
+}
+
+.code {
+    font-family:monospace;
+    font-size:1.1em;
+}
+
+a:link, a:visited {
+    text-decoration:none;
+}
+
+a:hover {
+    text-decoration:underline;
+}
+
+.small {
+    font-size:0.8em;
+}
+
+.headingsmall {
+    font-size:10pt;
+    font-weight:normal;
+    display:inline;
+}
+
+.container {
+    margin-left:auto;
+    margin-right:auto;
+    max-width:800px;
+}
+
+.main {
+    width:75%;
+    float:left;
+}
+
+.right {
+    width:22%;
+    float:right;
+    padding-top:3.5em;
+}
+
+.right .photo img {
+    width:100%;
+}
+
+.highlightbox {
+    padding: 0.5em 1em;
+    margin-bottom:5px;
+    border: 1px dashed gray;
+    background-color:#FFA;
+}
+
+.center img {
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.left img {
+    float:left;
+    margin-right: 1em;
+}
+
+.header {
+    height:4em;
+}

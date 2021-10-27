@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Discrete logic POV clock</title>
+        <link rel="stylesheet" href="../project.css" type="text/css">
+    </head> 
+    <body>
+        <div class="container">
+        <div class="main">
+        <h1>Discrete logic POV clock</h1>
+        <p>I've always been interested in electronics.  I have fond memories of sitting at my grandfather's workbench watching him solder — but, as a software engineer, I never got much exposure to the hardware field.</p>
+        <p>In 2006, I decided to change that.  I picked up a vintage oscilloscope and <em><a href="https://www.amazon.com/Art-Electronics-Paul-Horowitz/dp/0521370957/">The Art of Electronics</a></em> and began my studies in earnest.</p>
+        <p>First, I built a <a href="/flashtrigger/">flash trigger</a> based on someone else's plans.  It worked, but I really wanted to design something of my own — I figured if I could design a circuit from scratch and bring it to fruition, I must have really learned something.</p>
+        <p>The first time I saw a <a href="https://www.bing.com/search?q=pov+clock">persistence-of-vision clock</a>, I was hooked.  The designs I found online used microcontrollers, but that felt like cheating — I wanted to build my clock using only CMOS discrete logic.</p>
+        <p>I started designing the clock in March 2007 and finished the project two years later in April 2009. To my knowledge it's the only POV clock implemented entirely in discrete logic.
+        <div class="photo center"><iframe style="display:block;" width="560" height="315" src="https://www.youtube-nocookie.com/embed/qvD6US4PgCA?rel=0" frameborder="0" allowfullscreen></iframe></div></p>
+        <h3>Design</h3>
+        <p>My POV clock uses three separate modules:
+        <ol>
+            <li>The digit board, which keeps time</li>
+            <li>The display board, which scans the digit board and converts the time to an LED pattern</li>
+            <li>The power board, which connects and provides power to the above.</li>
+        </ol>
+        Each module is independently testable with no dependencies on other boards.</p>
+        <h3>The digit board
+            <div class="headingsmall">[<a href="https://github.com/swannman/povclock/blob/master/images/digit%20schematic.png?raw=true">schematic</a>, <a href="https://github.com/swannman/povclock/raw/master/images/digit%20board.png">pcb</a>]</div>
+        </h3>
+        <p><em>Every second, a pulse increments the value stored in a counter.  When it overflows, the next counter is incremented.  Each counter represents a digit in the time.  A decoder selects one digit at a time and puts that digit's value on the output bus.</em></p>
+        <p>The current time is stored in six 74HC192 synchronous BCD counters.  Each counter represents a digit — the least-significant seconds digit, then the most-significant digit, then the least-significant minutes digit, etc.  Each counter is incremented when its predecessor overflows, typically when transitioning from 9 to 0.  Most-significant digits require additional logic to overflow when they transition from 5 to 6.  A brief glitch occurs when the counter reads 6 and hasn't yet been reset to 0, but it doesn't cause a problem in practice.</p>
+        <p>The least-significant seconds digit is incremented by the divide-by-256 output of an ICM7242 counter and RC circuit.  A crystal oscillator and 74HC4060 would keep time more accurately, but the CMOS output from the 4060 is unable to get the crystal started.  An SPDT switch allows the user to advance the clock using the divide-by-2 output of the ICM7242.</p>
+        <p>Each counter is connected to a shared output bus through a 74HC244 3-state buffer.  The buffers default to a high-impedance state that is invisible to the bus.  A 74HC137 decoder enables one buffer at a time, making that counter's value visible on the bus.  The digit board drives the decoder to read each digit in sequence.  For example, selecting buffer 0 puts the least-significant seconds digit on the bus; selecting buffer 1 puts the most-significant seconds digit on.  By looping through every buffer we can read all the digits in the time.</p>
+        <p>The digit board interfaces with the display board through a ten-pin connector:
+        <ol>
+            <li>Three bits of input to select which buffer should be enabled</li>
+            <li>Four bits of output for the digit value from the shared bus</li>
+            <li>5v, ground, and (partially implemented) reset</li>
+        </ol></p>
+        <h3>The display board
+            <div class="headingsmall">[<a href="https://github.com/swannman/povclock/blob/master/images/display%20schematic.png?raw=true">schematic</a>, <a href="https://github.com/swannman/povclock/raw/master/images/display%20board.png">pcb</a>]</div>
+        </h3>
+        <p><em>A pulse from an external source wakes up the display board.  It selects the leftmost digit from the digit board, formats it for a 7-segment-display, and chops up the result into a 5 x 5 pixel matrix. It lights up LEDs for each column in sequence then selects the next digit to the right.</em></p>
+        <p>The display board sleeps until a pulse from an H21A1 optical interrupter indicates that the LEDs are about to sweep across the face of the clock. The pulse sets a 74HC74 flip-flop and starts a 555 timer oscillating.  The 555 increments a 74HC590 8-bit counter which coordinates actions across the rest of the display board.  The counter output is used as follows:
+        <ol>
+            <li>Bits 0-1 (LSB): not used</li>
+            <li>Bits 2-4: select column to display on the LEDs (0 - 7)</li>
+            <li>Bits 5-7 (MSB): select digit to read from the digit board (0 - 7)</li>
+        </ol></p>
+        <p>Bits 5-7 interface with the digit board through the ten-pin connector.  Although these bits count up, they are negated with a 74HC04 hex inverter to count down from 7 to 0, selecting the hours digit first.  This matches the left-to-right sweep of the LED arm.</p>
+        <p>The four output bits from the digit board are read by a 74HC4511 BCD to 7-segment decoder.  It converts the digit value into the segments of a physical digit.</p>
+        <p>While this digit is selected from the digit board, bits 2-4 from the counter cycle from 0-7.  These are demultiplexed by a 74HC237 into 7 individual lines. Each line goes high in turn, indicating which column of the physical digit to display:
+        <ol>
+            <li>Lines 1-2: the left-most column</li>
+            <li>Lines 3-4: the middle column</li>
+            <li>Lines 4-5: the right-most column</li>
+            <li>Lines 6-7: blank padding before the next digit</li>
+        </ol>
+        These lines and the output of the 74HC4511 are fed into a complex network of AND and OR gates — 2x 74HC08, 2x 74HC32, and a 74HC4075. They determine which LEDs should light up for each column in the digit.  For example, if the middle segment of the digit should be lit up (for a 2, 3, 4, 5, 6, 8, or 9), then the AND and OR gates will enable the middle LED on columns 1-5.  If the upper-left segment should be lit up (for a 0, 4, 5, 6, 8, or 9) then the top three LEDs will be lit up, but only on column 1.</p>
+        <p>The LEDs are driven by a 74HC541 high-output-current buffer.  The LEDs are connected to the display board by a second 10-pin connector — five pins are outputs (one per LED), the other five form a common ground shared by all the LEDs.</p>
+        <p>When bits 2-4 of the 74HC590 have cycled through every column, bits 5-7 select the next digit and the digit-to-LED conversion process repeats again.</p>
+        <p>When the 74HC590 counter overflows, it resets the flip-flop and stops the 555 oscillator.  The board sleeps until the next pulse from the optical interrupter.</p>
+        <h3>The power board
+            <div class="headingsmall">[<a href="https://github.com/swannman/povclock/raw/master/images/power%20board.png">pcb</a>]</div>
+        </h3>
+        <p><em>Provides power to the clock and display boards.</em></p>
+        <p>The ten-pin connectors from the clock and display boards plug into the power board using ribbon cables.  The power board bridges the two connectors with a common bus and provides 5V via a MAX603 linear regulator configured per the datasheet.  A 9V battery connected is a convenient power source.</p>
+        <p>The power board bus also provides convenient access points for a logic analyzer.</p>
+        <h3>Hardware</h3>
+        <p><em>Five LEDs are arranged on an arm which sweeps side-to-side. When the arm begins to sweep toward the right, an object trips the optical interrupter and wakes up the display board.</em></p>
+        <p>Designing the hardware mechanism was a challenge.  Microcontroller-based POV clocks typically spin the entire board along with the LEDs, but discrete logic doesn't lend itself to that.  My original design called for a <a href="https://en.wikipedia.org/wiki/Slip_ring">slip ring</a> to connect the circuit boards and spinning LED arm, but I wanted to avoid expensive specialty parts.  Instead I use a <a href="https://www.freezeray.com/flashFiles/treadle.htm">treadle linkage mechanism</a> to convert a spinning motor shaft into side-to-side motion.</p>
+        <p>A sewing pin attached to the motor shaft sweeps through the optical interrupter when the LED arm begins to sweep from left to right.  This wakes up the display board and displays the current time.</p>
+        <h3>Test equipment</h3>
+        <p>I began the project with a Tektronix 465 analog scope but quickly outgrew it.  An HP 1631D logic analyzer helped me design the digit board and an HP 16500B helped me design and integrate the display board.</p> 
+        <h3>PCB design</h3>
+        <p>I laid out each PCB by hand and drew the traces in Adobe Illustrator. I wrote a <a href="https://swannman.github.com/pdf2gerb/">PDF to Gerber converter</a> to convert my designs from PDF to Gerber + NC Drill and ordered the boards through <a href="https://batchpcb.com">BatchPCB</a>.</p>
+        <h3>Project files and license</h3>
+        <p>Files associated with this project can be found <a href="https://github.com/swannman/povclock">here</a>.  You can browse them individually or <a href="https://github.com/swannman/POVClock/zipball/master">download a .zip archive</a>.</p>
+        <p>The project files include:
+        <ul>
+            <li>A parts list</li>
+            <li>Schematics in PDF and PNG format</li>
+            <li>PCB designs in PDF, PNG, and Gerber + NC Drill format</li>
+            <li>Adobe Illustrator source files for the above</li>
+        </ul></p>
+        <p>This project is released as open-source hardware under the <a href="https://www.tapr.org/OHL">TAPR Open Hardware License</a>. Please let me know if you incorporate elements of it into your own design.</p>
+        <h3>Contact</h3>
+        <p>If you have comments, suggestions, or issues — or if this project inspires you to build something cool — I'd love to hear from you.  Email me at <a href="mailto:swannman@mac.com?subject=POV%20Clock">swannman@mac.com</a>.</p>
+    </div>
+    <div class="right">
+        <div class="highlightbox">
+            <a href="https://github.com/swannman/POVClock/">Browse project files</a><br/>
+            <a href="https://github.com/swannman/POVClock/zipball/master">Download project files (.zip)</a><br/>
+            <a href="https://swannman.github.io/pdf2gerb">pdf2gerb converter</a><br/>
+        </div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/DSC0006/353879781_hvmg2-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/DSC0006/353879781_hvmg2-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/i-Zj2qbC7/0/XL/circuitplan2-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/i-Zj2qbC7/0/M/circuitplan2-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/i-d4Zctjp/0/XL/clockcircuit-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/i-d4Zctjp/0/M/clockcircuit-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/i-qGps85j/0/XL/osccart-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/i-qGps85j/0/M/osccart-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/DSC0016/307976562_EXAzT-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/DSC0016/307976562_EXAzT-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/i-V46NLBT/0/XL/clockout-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/i-V46NLBT/0/M/clockout-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/DSC0001/352986146_hRb5E-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/DSC0001/352986146_hRb5E-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/waveform/161036403_m5H8Q-XL-1.gif"><img src="https://swannman.smugmug.com/2008/Electronics/waveform/161036403_m5H8Q-L-1.gif" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/listing/161036402_dTZqo-XL.gif"><img src="https://swannman.smugmug.com/2008/Electronics/listing/161036402_dTZqo-M.gif" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/i-tC8QQfs/0/XL/DSC0034-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/i-tC8QQfs/0/M/DSC0034-M.jpg" /></a></div>
+        <div class="photo"><a href="https://swannman.smugmug.com/2008/Electronics/i-vVptPt6/0/XL/DSC0052-XL.jpg"><img src="https://swannman.smugmug.com/2008/Electronics/i-vVptPt6/0/M/DSC0052-M.jpg" /></a></div>
+    </div>
+    </div>
+</body>
+</html>
