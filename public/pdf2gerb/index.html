@@ -11,7 +11,7 @@
             <h1>pdf2gerb: Convert PDF to Gerber and NC Drill formats</h1>
             <div class="highlightbox">New! Version 1.6 is a massive update courtesy of DJ. The tool now auto-generates soldermask and outline layers, supports polygon fills, can read compresed PDF 1.4 format, and is much more robust. It also has proper documentation — <a href="https://github.com/swannman/pdf2gerb/raw/master/docs/Pdf2Gerb.pdf">read it here.</a> Thanks DJ!</div>
             <p>I prefer to design circuit board layouts in Adobe Illustrator — it's a familiar tool and I get results quickly.  PCB manufacturers expect designs in Gerber + NC Drill format, however, and the best Illustrator can do is export to PDF.</p>
-            <p>pdf2gerb is a Perl script that converts specially-formatted PDF files to Gerber and NC Drill format.  I used it to order PCB designs from BatchPCB for my <a href="https://swannman.com/povclock">POV clock</a> with great success.</p>
+            <p>pdf2gerb is a Perl script that converts specially-formatted PDF files to Gerber and NC Drill format.  I used it to order PCB designs from BatchPCB for my <a href="https://swannman.com/povclock/">POV clock</a> with great success.</p>
             <h3>Converting PDF to Gerber</h3>
             <p>The PDF and Gerber file formats are very similar.  PDF commands move a pen from point to point, drawing lines and changing stroke weights.  Similarly, Gerber commands move a photoplotter head around a circuit board, exposing lines and changing apertures.  The concept is the same but the grammar is different.</p>
             <p>For example, the PDF command "350 450 m" moves the pen to coordinate (350, 450).  The Gerber equivalent is "X350Y450D02".  ".5 w" changes the PDF stroke weight; "G54D10" changes the Gerber aperture.</p>
@@ -49,7 +49,7 @@
             </ol>
              
             You can download the files from this project <a href="https://github.com/swannman/pdf2gerb/raw/master/examples/pdf2gerb_example.zip">here</a>.</p>
-            <div class="highlightbox">Curious whether this tool works?  It's been proven in real-world use — I used it to design three circuit boards for my <a href="https://swannman.com/povclock">discrete logic POV clock</a>, and <a href="https://www.lucaderosso.com/">Luca De Rosso</a> used it to design the board for his OTOH project.</div>
+            <div class="highlightbox">Curious whether this tool works?  It's been proven in real-world use — I used it to design three circuit boards for my <a href="https://swannman.com/povclock/">discrete logic POV clock</a>, and <a href="https://www.lucaderosso.com/">Luca De Rosso</a> used it to design the board for his OTOH project.</div>
             <h3>Usage</h3>
             <p>Download the script <a href="https://raw.github.com/swannman/pdf2gerb/master/pdf2gerb.pl">here.</a>  Right-click on the download link and save it to your computer.  Open a Terminal window, navigate to the file you downloaded, and type <span class="code">chmod 755 pdf2gerb.pl</span> to make it executable.</p>
             <p>To use pdf2gerb, type <span class="code">./pdf2gerb.pl /path/to/circuit.pdf</span>.  Gerber and NC Drill files will be output to the same location as the PDF file.</p>
