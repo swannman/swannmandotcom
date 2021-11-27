@@ -12,7 +12,7 @@
         <p>I've always been interested in electronics.  I have fond memories of sitting at my grandfather's workbench watching him solder — but, as a software engineer, I never got much exposure to the hardware field.</p>
         <p>In 2006, I decided to change that.  I picked up a vintage oscilloscope and <em><a href="https://www.amazon.com/Art-Electronics-Paul-Horowitz/dp/0521370957/">The Art of Electronics</a></em> and began my studies in earnest.</p>
         <p>First, I built a <a href="/flashtrigger/">flash trigger</a> based on someone else's plans.  It worked, but I really wanted to design something of my own — I figured if I could design a circuit from scratch and bring it to fruition, I must have really learned something.</p>
-        <p>The first time I saw a <a href="https://www.bing.com/search?q=pov+clock">persistence-of-vision clock</a>, I was hooked.  The designs I found online used microcontrollers, but that felt like cheating — I wanted to build my clock using only CMOS discrete logic.</p>
+        <p>The first time I saw a <a href="https://duckduckgo.com/?q=pov+clock&iar=images&iax=images&ia=images">persistence-of-vision clock</a>, I was hooked.  The designs I found online used microcontrollers, but that felt like cheating — I wanted to build my clock using only CMOS discrete logic.</p>
         <p>I started designing the clock in March 2007 and finished the project two years later in April 2009. To my knowledge it's the only POV clock implemented entirely in discrete logic.
         <div class="photo center"><iframe style="display:block;" width="560" height="315" src="https://www.youtube-nocookie.com/embed/qvD6US4PgCA?rel=0" frameborder="0" allowfullscreen></iframe></div></p>
         <h3>Design</h3>
@@ -67,7 +67,7 @@
         <p>The power board bus also provides convenient access points for a logic analyzer.</p>
         <h3>Hardware</h3>
         <p><em>Five LEDs are arranged on an arm which sweeps side-to-side. When the arm begins to sweep toward the right, an object trips the optical interrupter and wakes up the display board.</em></p>
-        <p>Designing the hardware mechanism was a challenge.  Microcontroller-based POV clocks typically spin the entire board along with the LEDs, but discrete logic doesn't lend itself to that.  My original design called for a <a href="https://en.wikipedia.org/wiki/Slip_ring">slip ring</a> to connect the circuit boards and spinning LED arm, but I wanted to avoid expensive specialty parts.  Instead I use a <a href="https://www.freezeray.com/flashFiles/treadle.htm">treadle linkage mechanism</a> to convert a spinning motor shaft into side-to-side motion.</p>
+        <p>Designing the hardware mechanism was a challenge.  Microcontroller-based POV clocks typically spin the entire board along with the LEDs, but discrete logic doesn't lend itself to that.  My original design called for a <a href="https://en.wikipedia.org/wiki/Slip_ring">slip ring</a> to connect the circuit boards and spinning LED arm, but I wanted to avoid expensive specialty parts.  Instead I use a <a href="https://duckduckgo.com/?q=treadle+linkage+&iar=images&iax=images&ia=images">treadle linkage mechanism</a> to convert a spinning motor shaft into side-to-side motion.</p>
         <p>A sewing pin attached to the motor shaft sweeps through the optical interrupter when the LED arm begins to sweep from left to right.  This wakes up the display board and displays the current time.</p>
         <h3>Test equipment</h3>
         <p>I began the project with a Tektronix 465 analog scope but quickly outgrew it.  An HP 1631D logic analyzer helped me design the digit board and an HP 16500B helped me design and integrate the display board.</p> 
@@ -82,7 +82,7 @@
             <li>PCB designs in PDF, PNG, and Gerber + NC Drill format</li>
             <li>Adobe Illustrator source files for the above</li>
         </ul></p>
-        <p>This project is released as open-source hardware under the <a href="https://www.tapr.org/OHL">TAPR Open Hardware License</a>. Please let me know if you incorporate elements of it into your own design.</p>
+        <p>This project is released as open-source hardware under the <a href="https://tapr.org/the-tapr-open-hardware-license/">TAPR Open Hardware License</a>. Please let me know if you incorporate elements of it into your own design.</p>
         <h3>Contact</h3>
         <p>If you have comments, suggestions, or issues — or if this project inspires you to build something cool — I'd love to hear from you.  Email me at <a href="mailto:3lemenopy@gmail.com?subject=POV%20Clock">3lemenopy@gmail.com</a>.</p>
     </div>
