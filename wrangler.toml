@@ -1,6 +1,6 @@
 account_id = ""
 name = "swannmandotcom"
-type = "webpack"
 workers_dev = true
 site = { bucket = "./public" }
-compatibility_date = "2021-10-27"
+compatibility_date = "2024-09-23"
+main = "workers-site/index.js"
