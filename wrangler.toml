@@ -1,4 +1,4 @@
-account_id = ""
+account_id = "e586791371224fd8a71725fce7f6f1a6"
 name = "swannmandotcom"
 workers_dev = true
 site = { bucket = "./public" }
