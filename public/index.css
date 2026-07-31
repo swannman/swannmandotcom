@@ -10,7 +10,10 @@ html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pr
 /* end Yahoo CSS reset code */
 
 body {
-    margin: 16px 8px 8px 16px;
+    margin: 24px 16px 48px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    color: #1a1a1a;
 }
 
 h1, h3, strong {
@@ -26,16 +29,20 @@ h3 {
     margin-top: 1.2em;
 }
 
-h3 + p {
+h3 + ul, h3 + p {
     margin-top:0.5em;
 }
 
-p, ol {
+p, ol, ul {
     margin: 1em 0;
 }
 
-ol, ul {
-    padding-left:40px;
+ol {
+    padding-left:1.5em;
+}
+
+ul {
+    padding-left:0;
 }
 
 ol, ol li {
@@ -43,11 +50,12 @@ ol, ol li {
 }
 
 ul, ul li {
-    list-style-type: circle;
+    list-style: none;
 }
 
 li {
     display: list-item;
+    margin: 0.4em 0;
 }
 
 em {
@@ -61,10 +69,12 @@ em {
 
 a:link, a:visited {
     text-decoration:none;
+    color:#2b5eaa;
 }
 
 a:hover {
     text-decoration:underline;
+    color:#1a3f76;
 }
 
 .small {
@@ -84,8 +94,8 @@ a:hover {
 }
 
 .main {
-    width:75%;
-    float:left;
+    width:100%;
+    float:none;
 }
 
 .right {
@@ -116,6 +126,39 @@ a:hover {
     margin-right: 1em;
 }
 
+/* Height is auto rather than fixed: the header links wrap on narrow
+   screens and a fixed height lets them overlap the content below. */
 .header {
-    height:4em;
+    height:auto;
+    margin-bottom:1.5em;
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        margin: 16px 20px 32px;
+    }
+
+    .right {
+        width: 100%;
+        float: none;
+        padding-top: 1.5em;
+    }
+
+    h1 {
+        font-size: 1.75em;
+    }
+
+    ol {
+        padding-left: 1.25em;
+    }
+
+    li {
+        margin: 0.5em 0;
+    }
 }
