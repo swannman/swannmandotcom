@@ -8,6 +8,18 @@ export default {
     let options = {
       ASSET_NAMESPACE: env.__STATIC_CONTENT,
       ASSET_MANIFEST: assetManifest,
+      // Pages and stylesheets change on every deploy. Without an explicit
+      // browserTTL, kv-asset-handler strips Cache-Control entirely and the
+      // CDN falls back to its own default TTL, which can keep serving a
+      // stale page long after a deploy. Everything else (images) keeps the
+      // previous behaviour.
+      cacheControl: req => {
+        const path = new URL(req.url).pathname
+        const isPage =
+          path.endsWith('/') || path.endsWith('.html') || path.endsWith('.css')
+
+        return isPage ? { browserTTL: 60, edgeTTL: 60 } : {}
+      },
     }
 
     try {
