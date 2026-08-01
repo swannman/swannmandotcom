@@ -63,6 +63,12 @@
   .tile.playing { border-color: var(--amber); background: var(--panel-hi);
     box-shadow: 0 0 24px rgba(255, 157, 46, .12) inset, 0 0 18px rgba(255, 157, 46, .08); }
 
+  /* picks — a subtle green wash. The playing state still wins so the
+     amber "now playing" treatment reads the same on every tile. */
+  .tile.pick { background: #16201a; border-color: #27462e; }
+  .tile.pick:hover { background: #1b2821; border-color: #3d6b48; }
+  .tile.pick.playing { background: var(--panel-hi); border-color: var(--amber); }
+
   .dial { position: relative; width: 58%; margin-bottom: 10px; }
   .dial svg { display: block; width: 100%; transform: rotate(-90deg); }
   .dial .track-ring { stroke: var(--line); }
@@ -138,10 +144,15 @@ function toast(msg) {
 }
 
 // ---- build grid ----
+const PICKS = new Set([
+  "correct execution", "polar muller", "chop suey",
+  "opposite home", "waxy stick", "careful expression",
+]);
+
 const grid = document.getElementById("grid");
 const tiles = TRACKS.map((t, i) => {
   const b = document.createElement("button");
-  b.className = "tile";
+  b.className = PICKS.has(t.title.toLowerCase()) ? "tile pick" : "tile";
   b.setAttribute("aria-label", "Play " + t.title);
   b.innerHTML = `
     <span class="dial">
