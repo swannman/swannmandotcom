@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Korg Gadget — Recordings</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23ff9d2e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #131210;
+    --panel: #1c1a17;
+    --panel-hi: #242119;
+    --line: #2b2822;
+    --amber: #ff9d2e;
+    --amber-hi: #ffc069;
+    --amber-dim: #7a4d17;
+    --text: #ece5d8;
+    --muted: #948b7a;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --disp: "Chakra Petch", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--mono); min-height: 100vh; padding-bottom: 60px;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  header { padding: 52px 0 34px; }
+  .brand small {
+    display: block; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--amber); font-size: 11px; margin-bottom: 10px;
+  }
+  .brand h1 {
+    font-family: var(--disp); font-weight: 700; font-size: clamp(28px, 5vw, 46px);
+    letter-spacing: 0.02em; line-height: 1; text-transform: uppercase;
+  }
+  .brand h1 span { color: var(--amber); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 14px;
+  }
+  .tile {
+    position: relative; aspect-ratio: 1; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--line);
+    color: var(--text); font-family: inherit; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0; padding: 12px; text-align: center; overflow: hidden;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .tile:hover { background: var(--panel-hi); border-color: var(--amber-dim); }
+  .tile:active { transform: scale(.97); }
+  .tile.playing { border-color: var(--amber); background: var(--panel-hi);
+    box-shadow: 0 0 24px rgba(255, 157, 46, .12) inset, 0 0 18px rgba(255, 157, 46, .08); }
+
+  .dial { position: relative; width: 58%; margin-bottom: 10px; }
+  .dial svg { display: block; width: 100%; transform: rotate(-90deg); }
+  .dial .track-ring { stroke: var(--line); }
+  .tile:hover .track-ring { stroke: var(--amber-dim); }
+  .dial .prog { stroke: var(--amber); stroke-linecap: round; }
+  .dial .glyph {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    color: var(--muted); transition: color .15s;
+  }
+  .tile:hover .glyph { color: var(--amber-hi); }
+  .tile.playing .glyph { color: var(--amber); }
+  .dial .glyph svg { width: 34%; height: 34%; transform: none; }
+
+  .tile .name {
+    font-family: var(--disp); font-weight: 600; font-size: 13px; line-height: 1.25;
+    max-width: 100%; overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .tile .len { color: var(--muted); font-size: 10px; margin-top: 5px; letter-spacing: .08em; }
+  .tile.playing .len { color: var(--amber-hi); }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(80px);
+    background: #3a1c10; border: 1px solid #a04a1e; color: #ffd9b0;
+    padding: 12px 18px; border-radius: 8px; font-size: 12px; max-width: 90vw;
+    transition: transform .25s; z-index: 20;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <small>Loops &amp; Sketches</small>
+        <h1>Korg <span>Gadget</span></h1>
+      </div>
+    </header>
+    <div class="grid" id="grid"></div>
+  </div>
+  <div id="toast" role="alert"></div>
+
+<script>
+const TRACKS = [{"title": "Acoustic", "file": "exports/Acoustic.wav", "duration": 55.08}, {"title": "Average Radiation", "file": "exports/Average Radiation.wav", "duration": 11.25}, {"title": "Basic Carrier", "file": "exports/Basic Carrier.wav", "duration": 15.0}, {"title": "Careful Expression", "file": "exports/Careful Expression.wav", "duration": 16.0}, {"title": "Casual Impression", "file": "exports/Casual Impression.wav", "duration": 15.0}, {"title": "Changeable Pot", "file": "exports/Changeable Pot.wav", "duration": 7.5}, {"title": "Chop suey", "file": "exports/Chop suey.wav", "duration": 50.1}, {"title": "Confused Gallery", "file": "exports/Confused Gallery.wav", "duration": 20.45}, {"title": "Correct Execution", "file": "exports/Correct Execution.wav", "duration": 17.45}, {"title": "Crooked Correction", "file": "exports/Crooked Correction.wav", "duration": 11.25}, {"title": "Cultural Source", "file": "exports/Cultural Source.wav", "duration": 10.0}, {"title": "Delicate Channel", "file": "exports/Delicate Channel.wav", "duration": 9.23}, {"title": "Derelict Title", "file": "exports/Derelict Title.wav", "duration": 19.47}, {"title": "Distressed Replication", "file": "exports/Distressed Replication.wav", "duration": 18.46}, {"title": "Dramatic Trip", "file": "exports/Dramatic Trip.wav", "duration": 7.87}, {"title": "Dumb Play", "file": "exports/Dumb Play.wav", "duration": 52.5}, {"title": "Foggy Side", "file": "exports/Foggy Side.wav", "duration": 15.0}, {"title": "Fresh Pocket", "file": "exports/Fresh Pocket.wav", "duration": 16.0}, {"title": "Great Moon", "file": "exports/Great Moon.wav", "duration": 6.66}, {"title": "Happy dance", "file": "exports/Happy dance.wav", "duration": 8.0}, {"title": "Hoopoe", "file": "exports/Hoopoe.wav", "duration": 15.14}, {"title": "Incorrect Perch", "file": "exports/Incorrect Perch.wav", "duration": 7.5}, {"title": "Independent Field", "file": "exports/Independent Field.wav", "duration": 68.25}, {"title": "Inevitable past", "file": "exports/Inevitable past.wav", "duration": 15.36}, {"title": "Infinite Game", "file": "exports/Infinite Game.wav", "duration": 30.0}, {"title": "Insecure Mat", "file": "exports/Insecure Mat.wav", "duration": 15.0}, {"title": "Insignificant Conclusion", "file": "exports/Insignificant Conclusion.wav", "duration": 7.5}, {"title": "Isolated Rocker", "file": "exports/Isolated Rocker.wav", "duration": 8.0}, {"title": "Knotty Canvass", "file": "exports/Knotty Canvass.wav", "duration": 9.9}, {"title": "Legal Address", "file": "exports/Legal Address.wav", "duration": 22.33}, {"title": "Loose Sign", "file": "exports/Loose Sign.wav", "duration": 44.86}, {"title": "Marine Thing", "file": "exports/Marine Thing.wav", "duration": 15.0}, {"title": "Material Game", "file": "exports/Material Game.wav", "duration": 15.0}, {"title": "Middle Sleeper", "file": "exports/Middle Sleeper 2.wav", "duration": 9.51}, {"title": "Musical Number", "file": "exports/Musical Number 2.wav", "duration": 30.0}, {"title": "Nice Job", "file": "exports/Nice Job 2.wav", "duration": 7.5}, {"title": "Opposite Home", "file": "exports/Opposite Home.wav", "duration": 16.0}, {"title": "Outstanding Failure", "file": "exports/Outstanding Failure.wav", "duration": 15.0}, {"title": "Polar Muller", "file": "exports/Polar Muller.wav", "duration": 7.5}, {"title": "Popular Face", "file": "exports/Popular Face 2.wav", "duration": 15.0}, {"title": "Powerful Tang", "file": "exports/Powerful Tang 2.wav", "duration": 15.0}, {"title": "Significant Wind", "file": "exports/Significant Wind.wav", "duration": 51.47}, {"title": "Smart Flight", "file": "exports/Smart Flight.wav", "duration": 7.5}, {"title": "Soft Point", "file": "exports/Soft Point.wav", "duration": 21.1}, {"title": "Solitary Day", "file": "exports/Solitary Day 2.wav", "duration": 15.0}, {"title": "Some Star", "file": "exports/Some Star.wav", "duration": 15.0}, {"title": "Southern Perch", "file": "exports/Southern Perch.wav", "duration": 15.0}, {"title": "Temporal Brass", "file": "exports/Temporal Brass 2.wav", "duration": 30.0}, {"title": "Terrestrial Counter", "file": "exports/Terrestrial Counter.wav", "duration": 9.6}, {"title": "Transparent Side", "file": "exports/Transparent Side.wav", "duration": 15.0}, {"title": "True Hammer", "file": "exports/True Hammer.wav", "duration": 3.75}, {"title": "Unhappy Core", "file": "exports/Unhappy Core.wav", "duration": 19.73}, {"title": "Unmanageable Pocket", "file": "exports/Unmanageable Pocket.wav", "duration": 7.5}, {"title": "Untouchable Life", "file": "exports/Untouchable Life.wav", "duration": 15.0}, {"title": "Urgent!", "file": "exports/Urgent!.wav", "duration": 7.8}, {"title": "Waxy Stick", "file": "exports/Waxy Stick.wav", "duration": 9.6}];
+
+// shuffle order on every load
+for (let i = TRACKS.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [TRACKS[i], TRACKS[j]] = [TRACKS[j], TRACKS[i]];
+}
+
+const ICON_PLAY = '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6z"/></svg>';
+const ICON_STOP = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>';
+const R = 45, CIRC = 2 * Math.PI * R;
+
+const audio = new Audio();          // fallback engine (file:// — has a tiny gap at the loop point)
+audio.loop = true;
+let ctx = null;                     // Web Audio engine (seamless looping), used when fetch works
+let bufferMode = null;              // null = undecided, true = Web Audio, false = <audio> fallback
+const buffers = new Map();          // file -> AudioBuffer (small LRU)
+let source = null, startedAt = 0;
+let current = -1;
+let raf = 0;
+
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove("show"), 6000);
+}
+
+// ---- build grid ----
+const grid = document.getElementById("grid");
+const tiles = TRACKS.map((t, i) => {
+  const b = document.createElement("button");
+  b.className = "tile";
+  b.setAttribute("aria-label", "Play " + t.title);
+  b.innerHTML = `
+    <span class="dial">
+      <svg viewBox="0 0 100 100" fill="none">
+        <circle class="track-ring" cx="50" cy="50" r="${R}" stroke-width="5"/>
+        <circle class="prog" cx="50" cy="50" r="${R}" stroke-width="5"
+          stroke-dasharray="${CIRC.toFixed(2)}" stroke-dashoffset="${CIRC.toFixed(2)}"/>
+      </svg>
+      <span class="glyph">${ICON_PLAY}</span>
+    </span>
+    <span class="name">${t.title}</span>
+    <span class="len">${fmt(t.duration)}</span>`;
+  b.addEventListener("click", () => toggle(i));
+  grid.appendChild(b);
+  return b;
+});
+
+// ---- playback ----
+function setProgress(i, frac) {
+  tiles[i].querySelector(".prog").style.strokeDashoffset = (CIRC * (1 - frac)).toFixed(2);
+}
+function markStopped(i) {
+  if (i < 0) return;
+  tiles[i].classList.remove("playing");
+  tiles[i].querySelector(".glyph").innerHTML = ICON_PLAY;
+  setProgress(i, 0);
+}
+function stop() {
+  cancelAnimationFrame(raf);
+  if (source) { try { source.stop(); } catch (_) {} source = null; }
+  audio.pause();
+  markStopped(current);
+  current = -1;
+}
+
+async function getBuffer(file) {
+  if (buffers.has(file)) return buffers.get(file);
+  const res = await fetch(encodeURI(file));
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const buf = await ctx.decodeAudioData(await res.arrayBuffer());
+  buffers.set(file, buf);
+  if (buffers.size > 8) buffers.delete(buffers.keys().next().value);  // cap memory
+  return buf;
+}
+
+function markPlaying(i) {
+  tiles[i].classList.add("playing");
+  tiles[i].querySelector(".glyph").innerHTML = ICON_STOP;
+  tick();
+}
+
+async function toggle(i) {
+  if (current === i) { stop(); return; }
+  stop();
+  current = i;
+
+  if (bufferMode !== false) {
+    // seamless engine: decoded buffer looped by the audio hardware clock
+    try {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === "suspended") await ctx.resume();
+      const buf = await getBuffer(TRACKS[i].file);
+      if (current !== i) return;              // user clicked elsewhere while decoding
+      bufferMode = true;
+      source = ctx.createBufferSource();
+      source.buffer = buf;
+      source.loop = true;
+      source.connect(ctx.destination);
+      startedAt = ctx.currentTime;
+      source.start();
+      markPlaying(i);
+      return;
+    } catch (e) {
+      if (bufferMode === true) {              // engine was working; this track just failed
+        current = -1; markStopped(i);
+        toast(`Couldn't play "${TRACKS[i].title}": ${e.message}`);
+        return;
+      }
+      bufferMode = false;                     // fetch blocked (file://) — fall back
+    }
+  }
+
+  audio.src = encodeURI(TRACKS[i].file);
+  audio.play().then(() => markPlaying(i)).catch(e => {
+    markStopped(i);
+    current = -1;
+    toast(`Couldn't play "${TRACKS[i].title}": ${e.name} — ${e.message}`);
+  });
+}
+audio.addEventListener("error", () => {
+  const e = audio.error;
+  if (current >= 0 && bufferMode === false)
+    toast(`Audio error on "${TRACKS[current].title}" (code ${e ? e.code : "?"}). ` +
+      `Try reloading the page.`);
+});
+function tick() {
+  if (current < 0) return;
+  let frac;
+  if (source) {
+    const d = source.buffer.duration;
+    frac = ((ctx.currentTime - startedAt) % d) / d;
+  } else {
+    const d = audio.duration || TRACKS[current].duration || 1;
+    frac = (audio.currentTime % d) / d;
+  }
+  setProgress(current, frac);
+  raf = requestAnimationFrame(tick);
+}
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" && current >= 0) { e.preventDefault(); stop(); }
+});
+</script>
+</body>
+</html>
