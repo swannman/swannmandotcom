@@ -1,6 +1,8 @@
 account_id = "e586791371224fd8a71725fce7f6f1a6"
 name = "swannmandotcom"
 workers_dev = true
-site = { bucket = "./public" }
 compatibility_date = "2024-09-23"
-main = "workers-site/index.js"
+
+[assets]
+directory = "./public"
+not_found_handling = "none"
