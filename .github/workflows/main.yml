@@ -15,3 +15,7 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          # The action defaults to wrangler 3.x, which predates _headers
+          # support for Static Assets and uploads the file as a plain
+          # asset instead of parsing it.
+          wranglerVersion: "4.118.0"
