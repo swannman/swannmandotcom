@@ -131,6 +131,20 @@ a:hover {
 .header {
     height:auto;
     margin-bottom:1.5em;
+    display:flex;
+    align-items:center;
+    gap:1.25em;
+}
+
+.header .portrait {
+    width:110px;
+    height:110px;
+    border-radius:22%;
+    flex-shrink:0;
+}
+
+.header-text p {
+    margin:0.35em 0 0;
 }
 
 /* Mobile */
@@ -152,6 +166,15 @@ a:hover {
 
     h1 {
         font-size: 1.75em;
+    }
+
+    .header {
+        gap: 1em;
+    }
+
+    .header .portrait {
+        width: 84px;
+        height: 84px;
     }
 
     ol {
