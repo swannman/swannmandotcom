@@ -158,6 +158,25 @@ a:hover {
     margin:0.35em 0 0;
 }
 
+/* Desktop: the portrait hangs in a gutter to the LEFT of the content column,
+   so the name and every section header share one left rail (the photo sits
+   outside it). The mobile flex layout below keeps the portrait on the right. */
+@media (min-width: 701px) {
+    .container {
+        padding-left: 134px;   /* 110px portrait + 24px gutter */
+    }
+
+    .header {
+        position: relative;
+    }
+
+    .header .portrait {
+        position: absolute;    /* out of the flex flow */
+        left: -134px;
+        top: 0;
+    }
+}
+
 /* Mobile */
 
 @media (max-width: 700px) {
