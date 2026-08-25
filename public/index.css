@@ -9,7 +9,14 @@ html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pr
 
 /* end Yahoo CSS reset code */
 
+/* Same ground color as art.swannman.com's daytime theme. The html rule
+   overrides the reset's white so the margins match the body. */
+html {
+    background: #E5E7E2;
+}
+
 body {
+    background: #E5E7E2;
     margin: 24px 16px 48px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.55;
