@@ -1,27 +1,44 @@
-/*
-Copyright (c) 2010, Yahoo! Inc. All rights reserved.
-Code licensed under the BSD License:
-https://developer.yahoo.com/yui/license.html
-version: 3.3.0
-build: 3167
-*/
-html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:text-top;}sub{vertical-align:text-bottom;}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}input,textarea,select{*font-size:100%;}legend{color:#000;}
+/* Minimal reset */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, p, ul, ol, li { margin: 0; padding: 0; }
+ul { list-style: none; }
+img { max-width: 100%; display: block; }
 
-/* end Yahoo CSS reset code */
+:root {
+    color-scheme: light dark;
+    --bg: #FFFFFF;
+    --text: #1a1a1a;
+    --link: #2b5eaa;
+    --link-hover: #1a3f76;
+    --underline: #b9c9e2;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Night ground shared with art.swannman.com */
+        --bg: #141816;
+        --text: #D9DBD6;
+        --link: #8FB3E8;
+        --link-hover: #B3CDF2;
+        --underline: #3D4C63;
+    }
+}
 
 body {
+    background: var(--bg);
+    color: var(--text);
     margin: 24px 16px 48px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 17px;
     line-height: 1.55;
-    color: #1a1a1a;
 }
 
 h1, h3, strong {
-    font-weight:bold;
+    font-weight: bold;
 }
 
 h1 {
-    font-size:2em;
+    font-size: 2em;
 }
 
 h3 {
@@ -30,27 +47,11 @@ h3 {
 }
 
 h3 + ul, h3 + p {
-    margin-top:0.5em;
+    margin-top: 0.5em;
 }
 
-p, ol, ul {
+p, ul {
     margin: 1em 0;
-}
-
-ol {
-    padding-left:1.5em;
-}
-
-ul {
-    padding-left:0;
-}
-
-ol, ol li {
-    list-style-type: decimal;
-}
-
-ul, ul li {
-    list-style: none;
 }
 
 li {
@@ -58,109 +59,67 @@ li {
     margin: 0.4em 0;
 }
 
-em {
-    font-style: italic; 
-}
-
-.code {
-    font-family:monospace;
-    font-size:1.1em;
-}
-
 a:link, a:visited {
-    text-decoration:none;
-    color:#2b5eaa;
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-color: var(--underline);
+    text-underline-offset: 2px;
 }
 
 a:hover {
-    text-decoration:underline;
-    color:#1a3f76;
-}
-
-.small {
-    font-size:0.8em;
-}
-
-.headingsmall {
-    font-size:10pt;
-    font-weight:normal;
-    display:inline;
+    color: var(--link-hover);
+    text-decoration-color: currentColor;
 }
 
 .container {
-    margin-left:auto;
-    margin-right:auto;
-    max-width:800px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 800px;
 }
 
 .main {
-    width:100%;
-    float:none;
+    width: 100%;
 }
 
-.right {
-    width:22%;
-    float:right;
-    padding-top:3.5em;
-}
-
-.right .photo img {
-    width:100%;
-}
-
-.highlightbox {
-    padding: 0.5em 1em;
-    margin-bottom:5px;
-    border: 1px dashed gray;
-    background-color:#FFA;
-}
-
-.center img {
-    display:block;
-    margin-left:auto;
-    margin-right:auto;
-}
-
-.left img {
-    float:left;
-    margin-right: 1em;
-}
+/* The picture wrapper (dark-mode source switching) must not become the flex
+   item itself. */
+.header picture { display: contents; }
 
 /* Height is auto rather than fixed: the header links wrap on narrow
    screens and a fixed height lets them overlap the content below. */
 .header {
-    height:auto;
-    margin-bottom:1.5em;
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:1.25em;
+    height: auto;
+    margin-bottom: 1.5em;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25em;
 }
 
 /* Top-aligned with the text block; the margin nudges the image down to meet
    the cap height of the h1 (the line box carries leading above the glyphs). */
 .header .portrait {
-    width:110px;
-    height:110px;
-    border-radius:22%;
-    flex-shrink:0;
-    margin-top:0.5em;
+    width: 110px;
+    height: 110px;
+    border-radius: 22%;
+    flex-shrink: 0;
+    margin-top: 0.5em;
 }
 
 /* flex:1 + min-width:0 lets the text column shrink and wrap on narrow
    screens instead of shoving the portrait past the right edge. */
 .header-text {
-    flex:1 1 auto;
-    min-width:0;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .header-text p {
-    margin:0.35em 0 0;
+    margin: 0.35em 0 0;
 }
 
 /* Desktop: the portrait hangs in a gutter to the LEFT of the content column,
    so the name and every section header share one left rail (the photo sits
-   outside it). The mobile flex layout below keeps the portrait on the right. */
+   outside it). The mobile flex layout keeps the portrait on the right. */
 @media (min-width: 701px) {
     .container {
         padding-left: 134px;   /* 110px portrait + 24px gutter */
@@ -179,7 +138,6 @@ a:hover {
 }
 
 /* Mobile */
-
 @media (max-width: 700px) {
     html {
         -webkit-text-size-adjust: 100%;
@@ -189,14 +147,12 @@ a:hover {
         margin: 16px 20px 32px;
     }
 
-    .right {
-        width: 100%;
-        float: none;
-        padding-top: 1.5em;
-    }
-
     h1 {
         font-size: 1.75em;
+    }
+
+    li {
+        margin: 0.5em 0;
     }
 
     .header {
@@ -206,13 +162,5 @@ a:hover {
     .header .portrait {
         width: 84px;
         height: 84px;
-    }
-
-    ol {
-        padding-left: 1.25em;
-    }
-
-    li {
-        margin: 0.5em 0;
     }
 }
