@@ -122,6 +122,9 @@ a:hover {
    outside it). The mobile flex layout keeps the portrait on the right. */
 @media (min-width: 701px) {
     .container {
+        /* border-box: widen the cap so the gutter adds to the 800px text
+           column instead of eating into it */
+        max-width: 934px;
         padding-left: 134px;   /* 110px portrait + 24px gutter */
     }
 
