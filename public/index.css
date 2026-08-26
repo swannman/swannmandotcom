@@ -155,12 +155,22 @@ a:hover {
         margin: 0.5em 0;
     }
 
+    /* Block flow + a floated portrait, so the name and links wrap beside the
+       photo and the bio's later lines run full-width beneath it. */
     .header {
-        gap: 1em;
+        display: block;
+    }
+
+    .header::after {
+        content: "";
+        display: block;
+        clear: both;
     }
 
     .header .portrait {
+        float: right;
         width: 84px;
         height: 84px;
+        margin: 0.35em 0 0.5em 1em;
     }
 }
